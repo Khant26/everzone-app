@@ -37,8 +37,6 @@ function Login() {
         return;
       }
 
-      const token = result?.data?.token;
-
       const admin = result?.data?.admin;
       const isSuperAdmin = admin?.role === 'superadmin';
       if (!isSuperAdmin) {
@@ -47,7 +45,7 @@ function Login() {
       }
 
       navigate('/Home');
-    } catch (err) {
+    } catch {
       setError('Network error. Please try again.');
     } finally {
       setLoading(false);

@@ -87,7 +87,6 @@ function Services() {
 
   const {
     services,
-    loading,
     error,
     fetchServices,
     createService,

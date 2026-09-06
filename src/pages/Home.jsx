@@ -131,6 +131,7 @@ const getStatusForReadState = (nextRead, previousStatus) => {
 
 function Home() {
   const navigate = useNavigate();
+  const [currentTime] = useState(Date.now);
   const { contactForms, loading, error, updateStatus } = useContactFormsData();
   const { services } = useServicesData();
   const { projects } = useProjectsData();
@@ -161,6 +162,8 @@ function Home() {
 
   useEffect(() => {
     const starredIds = readStarredInquiryIds();
+    // This local editable view intentionally synchronizes with newly fetched API data.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setInquiry(
       (contactForms || []).map((form) => {
         const normalized = normalizeContactForm(form);
@@ -237,7 +240,7 @@ function Home() {
   };
 
   const formatRelativeTime = (value) => {
-    const diff = Date.now() - new Date(value).getTime();
+    const diff = currentTime - new Date(value).getTime();
     const formatUnit = (amount, unit) => {
       const safeAmount = Math.max(1, amount);
       return `${safeAmount} ${unit}${safeAmount === 1 ? "" : "s"} ago`;

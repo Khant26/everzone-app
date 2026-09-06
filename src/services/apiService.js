@@ -56,7 +56,7 @@ class ApiService {
         let data = null;
         try {
             data = await response.json();
-        } catch (_) {
+        } catch {
             // ignore: non-JSON response
         }
 
