@@ -18,11 +18,11 @@ function Navbar() {
   };
 
   const getLanguageClass = (language, isMobile = false) => {
-    const activeColor = (text) => `text-[#84cc16]`;
+    const activeColor = "text-[#84cc16]";
     const inactiveColor = isMobile
       ? `text-slate-300 hover:text-white`
       : `text-slate-500 hover:text-slate-900`;
-    return i18n.resolvedLanguage === language ? activeColor() : inactiveColor;
+    return i18n.resolvedLanguage === language ? activeColor : inactiveColor;
   };
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
