@@ -1,16 +1,34 @@
-# React + Vite
+# EverZone Admin Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Administrative interface for managing EverZone content, products, customers, services, projects, and store operations.
 
-Currently, two official plugins are available:
+## Product repository
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+This application is also maintained as the [`admin`](https://github.com/Khant26/everzone/tree/admin) branch of the combined [EverZone repository](https://github.com/Khant26/everzone). The original repository is preserved.
 
-## React Compiler
+## Tech stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- React 19 and Vite 7
+- React Router
+- Tailwind CSS
+- Axios
 
-## Expanding the ESLint configuration
+## Local development
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+npm ci
+npm run dev
+```
+
+Create a local `.env` from `.env.example` and keep real environment values out of Git.
+
+## Quality checks
+
+```bash
+npm run lint
+npm run build
+```
+
+## License
+
+No open-source license is currently declared. All rights are reserved unless a license is added by the repository owner.
