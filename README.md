@@ -1,16 +1,51 @@
-# React + Vite
+# EverZone
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Responsive customer storefront for the EverZone commerce platform.
 
-Currently, two official plugins are available:
+**Live:** https://ever-zone-front-end.vercel.app/
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Product branches
 
-## React Compiler
+| Branch | Application |
+|---|---|
+| [`main`](https://github.com/Khant26/everzone/tree/main) | Customer storefront |
+| [`admin`](https://github.com/Khant26/everzone/tree/admin) | Administrative dashboard |
+| [`api`](https://github.com/Khant26/everzone/tree/api) | Express REST API |
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+The original component repositories remain available; the combined repository presents the complete product without moving functional source files.
 
-## Expanding the ESLint configuration
+## Features
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- Responsive product and service discovery
+- Project and category content
+- Customer contact journeys
+- Localized interface content
+- API-backed data and chatbot integration
+
+## Tech stack
+
+- React 19 and Vite 7
+- React Router
+- Tailwind CSS
+- Axios
+- i18next
+
+## Local development
+
+```bash
+npm ci
+npm run dev
+```
+
+Configure `VITE_API_BASE_URL` in a local environment file. Browser-exposed keys must be restricted appropriately and must never be treated as server secrets.
+
+## Quality checks
+
+```bash
+npm run lint
+npm run build
+```
+
+## License
+
+No open-source license is currently declared. All rights are reserved unless a license is added by the repository owner.
