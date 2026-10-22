@@ -109,25 +109,19 @@ function Projects() {
     loading: categoriesLoading,
     fetchCategories,
     createCategory,
-  } = useCategoriesData(false);
+  } = useCategoriesData(true);
 
   const didSeedCategoriesRef = useRef(false);
 
-  const PROJECT_IMAGE_URL = "/guesthouse.jpg";
+  const PROJECT_IMAGE_URL = "/admin/guesthouse.jpg";
 
   const normalizeRemoteImage = (value) =>
     typeof value === "string" && /^https?:\/\//i.test(value) ? value : null;
 
-  useEffect(() => {
-    if (newDraft.category_id) return;
-    const firstId = categories?.[0]?.id;
-    if (!firstId) return;
-    setNewDraft((prev) => ({ ...prev, category_id: String(firstId) }));
-  }, [categories, newDraft.category_id]);
-
-  useEffect(() => {
-    fetchCategories();
-  }, [fetchCategories]);
+  // Default the "new project" category to the first one until the user picks.
+  const firstCategoryId = categories?.[0]?.id;
+  const newCategoryId =
+    newDraft.category_id || (firstCategoryId ? String(firstCategoryId) : "");
 
   useEffect(() => {
     if (didSeedCategoriesRef.current) return;
@@ -280,12 +274,12 @@ function Projects() {
   const canCreate =
     newDraft.title.trim() &&
     newDraft.name.trim() &&
-    String(newDraft.category_id || "").trim() &&
+    String(newCategoryId || "").trim() &&
     newDraft.description.trim();
 
   const handleCreate = async () => {
     if (!canCreate) return;
-    const categoryId = Number.parseInt(newDraft.category_id, 10);
+    const categoryId = Number.parseInt(newCategoryId, 10);
     if (!Number.isFinite(categoryId) || categoryId <= 0) return;
 
     setActionLoading(true);
@@ -418,7 +412,7 @@ function Projects() {
                   Category <span className="text-red-500">*</span>
                 </label>
                 <select
-                  value={newDraft.category_id}
+                  value={newCategoryId}
                   onChange={(e) => setNewDraft((prev) => ({ ...prev, category_id: e.target.value }))}
                   required
                   className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-base text-slate-700 focus:border-slate-300 focus:outline-none"

@@ -1,8 +1,7 @@
-import React from "react";
 import { Outlet } from "react-router";
 import Navbar from "./components/Navbar";
 
-function Layout() {
+function AdminLayout() {
   return (
     <div className="min-h-screen bg-slate-50">
       <Navbar />
@@ -13,4 +12,4 @@ function Layout() {
   );
 }
 
-export default Layout;
+export default AdminLayout;

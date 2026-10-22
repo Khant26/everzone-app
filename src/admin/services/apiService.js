@@ -1,13 +1,10 @@
-const DEFAULT_API_HOST = 'https://engineering-web-2026-backend-io2r.onrender.com';
+import { API_ORIGIN } from '../../config/api';
 
-const normalizeApiHost = (value) => {
-    const rawBaseUrl = (value || DEFAULT_API_HOST).trim().replace(/\/+$/, '');
-    return rawBaseUrl.endsWith('/api') ? rawBaseUrl.slice(0, -4) : rawBaseUrl;
-};
+export const AUTH_CLEARED_EVENT = 'everzone:auth-cleared';
 
 class ApiService {
     constructor() {
-        this.baseURL = normalizeApiHost(import.meta.env.VITE_API_BASE_URL);
+        this.baseURL = API_ORIGIN;
     }
 
     getToken() {
@@ -17,6 +14,7 @@ class ApiService {
     clearAuth() {
         localStorage.removeItem('access_token');
         localStorage.removeItem('user_data');
+        window.dispatchEvent(new Event(AUTH_CLEARED_EVENT));
     }
 
     async request(path, options = {}, { auth = false } = {}) {

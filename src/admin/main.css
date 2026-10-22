@@ -1,7 +1,0 @@
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap');
-@import "tailwindcss";
-
-html {
-	font-family: 'Manrope', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial,
-		'Apple Color Emoji', 'Segoe UI Emoji';
-}

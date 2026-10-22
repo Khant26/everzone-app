@@ -1,11 +1,11 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
-import { AuthContext } from "../contexts/AuthContext";
+import { AuthContext } from "../contexts/auth-context";
 
 const navItems = [
-  { label: "Home", to: "/Home" },
-  { label: "Services", to: "/Services" },
-  { label: "Projects", to: "/Projects" },
+  { label: "Home", to: "/admin" },
+  { label: "Services", to: "/admin/services" },
+  { label: "Projects", to: "/admin/projects" },
 ];
 
 function Navbar() {
@@ -18,7 +18,7 @@ function Navbar() {
   const handleConfirmSignOut = () => {
     setShowSignOutModal(false);
     logout();
-    navigate("/Login");
+    navigate("/admin/login", { replace: true });
   };
 
   const linkClass = (to) => {
@@ -63,9 +63,9 @@ function Navbar() {
       >
         <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-6">
           <div className="flex items-center gap-8">
-            <Link to="/Home" className="flex items-center gap-2">
+            <Link to="/admin" className="flex items-center gap-2">
               <img
-                src="/everzone%20Logo.jpg"
+                src="/admin/everzone-logo.jpg"
                 alt="Ever Zone"
                 className="h-15 w-15 object-contain"
               />

@@ -27,17 +27,17 @@ function Sidebar() {
         <nav aria-label="Sidebar" className="flex-1">
           <ul className="space-y-1">
             <li>
-              <Link to="/Home" className={linkClass("/Home")}>
+              <Link to="/admin" className={linkClass("/admin")}>
                 Home
               </Link>
             </li>
             <li>
-              <Link to="/Services" className={linkClass("/Services")}>
+              <Link to="/admin/services" className={linkClass("/admin/services")}>
                 Services
               </Link>
             </li>
             <li>
-              <Link to="/Projects" className={linkClass("/Projects")}>
+              <Link to="/admin/projects" className={linkClass("/admin/projects")}>
                 Projects
               </Link>
             </li>

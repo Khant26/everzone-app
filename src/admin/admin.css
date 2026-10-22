@@ -1,0 +1,7 @@
+/* Admin-only styles. Tailwind itself is imported once globally (src/main.css);
+   everything here is scoped under .admin-root so it never leaks into the
+   storefront. The Manrope font is loaded in index.html. */
+.admin-root {
+  font-family: "Manrope", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+}

@@ -1,10 +1,12 @@
 import React, { useContext, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { AuthContext } from '../contexts/AuthContext';
+import { Navigate, useLocation, useNavigate } from "react-router";
+import { AuthContext } from '../contexts/auth-context';
 
 function Login() {
   const navigate = useNavigate();
-  const { login } = useContext(AuthContext);
+  const location = useLocation();
+  const { login, user } = useContext(AuthContext);
+  const redirectTo = location.state?.from?.pathname || '/admin';
   const [formData, setFormData] = useState({
     username: '',
     password: ''
@@ -13,6 +15,10 @@ function Login() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+
+  if (user) {
+    return <Navigate to={redirectTo} replace />;
+  }
 
   const handleChange = (e) => {
     setFormData({
@@ -44,7 +50,7 @@ function Login() {
         return;
       }
 
-      navigate('/Home');
+      navigate(redirectTo, { replace: true });
     } catch {
       setError('Network error. Please try again.');
     } finally {
@@ -57,7 +63,7 @@ function Login() {
       <div className="w-full max-w-lg">
         <div className="mx-auto flex flex-col items-center">
           <img
-            src="/everzone%20Logo.jpg"
+            src="/admin/everzone-logo.jpg"
             alt="Ever Zone"
             className="h-25 w-25 object-contain"
           />

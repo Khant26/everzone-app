@@ -389,8 +389,8 @@ function Home() {
 
             <div className="mt-6 flex flex-wrap gap-4">
               {[
-                { label: "Services", value: services.length, to: "/Services" },
-                { label: "Projects", value: projects.length, to: "/Projects" },
+                { label: "Services", value: services.length, to: "/admin/services" },
+                { label: "Projects", value: projects.length, to: "/admin/projects" },
               ].map((item) => (
                 <button
                   key={item.label}

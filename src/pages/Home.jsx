@@ -1,5 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import heroImg from "../assets/HeroImg.jpg";
 
 function Home() {
   const { t } = useTranslation();
@@ -16,7 +17,7 @@ function Home() {
       {/* Hero Image: Order 2 on Mobile (Middle), Order 1 on Desktop (Top) */}
       <div className="order-2 md:order-1 w-full max-w-6xl h-[250px] sm:h-[350px] md:h-[450px] lg:h-[550px] rounded-[2rem] md:rounded-[2.5rem] overflow-hidden shadow-lg mb-10 md:mb-0">
         <img
-          src="/src/assets/HeroImg.jpg" // Updated to match standard extension
+          src={heroImg}
           alt="EverZone Building"
           className="w-full h-full object-cover"
         />

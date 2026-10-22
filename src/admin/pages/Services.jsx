@@ -94,7 +94,7 @@ function Services() {
     deleteService,
   } = useServicesData(true);
 
-  const SERVICE_IMAGE_URL = "/services_placeholder.jpg";
+  const SERVICE_IMAGE_URL = "/admin/services_placeholder.jpg";
 
   const fileSummary = useMemo(() => {
     if (files.length === 0) return "";
