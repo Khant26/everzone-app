@@ -1,51 +1,79 @@
 # EverZone
 
-Responsive customer storefront for the EverZone commerce platform.
+One React + Vite app that serves both the EverZone customer storefront and the
+administrator dashboard.
 
-**Live:** https://ever-zone-front-end.vercel.app/
+**Live (storefront):** https://ever-zone-front-end.vercel.app/
 
-## Product branches
+## Branches
 
-| Branch | Application |
+| Branch | Contents |
 |---|---|
-| [`main`](https://github.com/Khant26/everzone/tree/main) | Customer storefront |
-| [`admin`](https://github.com/Khant26/everzone/tree/admin) | Administrative dashboard |
-| [`api`](https://github.com/Khant26/everzone/tree/api) | Express REST API |
+| `main` | This app: storefront at `/` and admin dashboard at `/admin` |
+| `backend` | Express + PostgreSQL REST API used by both (local branch, built from `api`) |
+| `admin`, `api` | Original standalone component branches (kept for history) |
 
-The original component repositories remain available; the combined repository presents the complete product without moving functional source files.
+## Routes
 
-## Features
+| Path | Page | Access |
+|---|---|---|
+| `/` | Storefront: home, about, services, projects, contact (single page with `#home`, `#about`, `#services`, `#projects`, `#contact` sections) and chatbot | Public |
+| `/admin/login` | Admin sign-in | Public |
+| `/admin` | Dashboard: stats and contact-form inbox | Superadmin |
+| `/admin/services` | Manage services | Superadmin |
+| `/admin/projects` | Manage projects and categories | Superadmin |
 
-- Responsive product and service discovery
-- Project and category content
-- Customer contact journeys
-- Localized interface content
-- API-backed data and chatbot integration
+Unknown paths redirect to `/` (or to `/admin` under `/admin/*`). Signed-out
+visitors to protected admin pages are sent to `/admin/login` and returned to the
+page they wanted after signing in. Only accounts with the `superadmin` role can
+use the dashboard. The JWT is kept in `localStorage` and dropped when it expires
+or the API answers 401/403.
 
-## Tech stack
+## Project layout
 
-- React 19 and Vite 7
-- React Router
-- Tailwind CSS
-- Axios
-- i18next
-
-## Local development
-
-```bash
-npm ci
-npm run dev
+```
+src/
+  main.jsx, routes/index.jsx   app entry and the one router (storefront + admin)
+  config/api.js                API base URL, read from VITE_API_BASE_URL
+  pages/, components/          storefront
+  admin/                       admin dashboard (pages, components, auth, hooks)
+public/admin/                  admin images
+vercel.json                    SPA rewrites for Vercel
 ```
 
-Configure `VITE_API_BASE_URL` in a local environment file. Browser-exposed keys must be restricted appropriately and must never be treated as server secrets.
+## Environment variables
 
-## Quality checks
+Copy `.env.example` to `.env` (git-ignored) and fill it in. All `VITE_*` values
+are compiled into the browser bundle, so they are **public**.
+
+| Variable | Required | Description |
+|---|---|---|
+| `VITE_API_BASE_URL` | yes | API base, e.g. `http://localhost:5000/api`. The trailing `/api` is optional. If unset, the app calls same-origin `/api`. |
+| `VITE_GEMINI_API_KEY` | no | Google Gemini key for the storefront chatbot. It is visible to anyone using the site, so restrict it by HTTP referrer in Google Cloud Console. |
+| `VITE_GEMINI_MODEL` | no | Gemini model (default `gemini-2.5-flash-lite`). |
+
+The API must allow the site's origin in its `CORS_ORIGIN` setting.
+
+## Run and build
+
+Requires Node.js 20.19 or later.
 
 ```bash
-npm run lint
-npm run build
+npm ci            # install
+npm run dev       # dev server at http://localhost:5173 (admin at /admin)
+npm run lint      # ESLint
+npm run build     # production build in dist/
+npm run preview   # serve the built app locally
 ```
+
+## Deploying to Vercel
+
+`vercel.json` builds with `npm run build`, serves `dist/`, and rewrites every
+non-file path to `index.html` so deep links such as `/admin/projects` work. Set
+`VITE_API_BASE_URL` (and the optional Gemini variables) in the Vercel project's
+environment settings.
 
 ## License
 
-No open-source license is currently declared. All rights are reserved unless a license is added by the repository owner.
+No open-source license is currently declared. All rights are reserved unless a
+license is added by the repository owner.
