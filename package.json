@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "setup-db": "node setup-db.js",
+    "setup-db": "node scripts/setup-db.js",
     "test": "node --test"
   },
   "keywords": [
@@ -34,5 +34,8 @@
   },
   "devDependencies": {
     "nodemon": "^3.1.14"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }

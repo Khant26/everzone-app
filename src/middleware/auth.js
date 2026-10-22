@@ -1,18 +1,19 @@
 import jwt from 'jsonwebtoken';
+import config from '../config/env.js';
 
 // Generate JWT token
 export const generateToken = (userId) => {
   return jwt.sign(
     { userId },
-    process.env.JWT_SECRET || 'your-secret-key-change-in-production',
-    { expiresIn: '24h' }
+    config.jwtSecret,
+    { expiresIn: config.jwtExpiresIn }
   );
 };
 
 // Verify JWT token
 export const verifyToken = (token) => {
   try {
-    return jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key-change-in-production');
+    return jwt.verify(token, config.jwtSecret);
   } catch (error) {
     return null;
   }

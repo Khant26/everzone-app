@@ -1,31 +1,30 @@
 import pkg from 'pg';
-import dotenv from 'dotenv';
-
-dotenv.config();
+import config from './env.js';
 
 const { Pool } = pkg;
 
+const connection = config.databaseUrl
+  ? { connectionString: config.databaseUrl }
+  : {
+      host: config.db.host,
+      port: config.db.port,
+      database: config.db.database,
+      user: config.db.user,
+      password: config.db.password,
+    };
+
+// pg creates connections lazily, so importing this module never touches the DB.
 const pool = new Pool({
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT,
-  database: process.env.DB_NAME,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  ssl: {
-    rejectUnauthorized: false
-  },
+  ...connection,
+  ssl: config.dbSsl ? { rejectUnauthorized: false } : false,
   connectionTimeoutMillis: 10000,
   idleTimeoutMillis: 30000,
   max: 20,
-  application_name: 'everzone_backend'
+  application_name: 'everzone_backend',
 });
 
 pool.on('error', (err) => {
   console.error('❌ Unexpected error on idle client:', err.message);
-});
-
-pool.on('connect', () => {
-  console.log('✓ New database connection established');
 });
 
 export default pool;

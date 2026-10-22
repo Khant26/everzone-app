@@ -1,6 +1,7 @@
 import pool from '../config/database.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import config from '../config/env.js';
 
 class AdminController {
   // ===== AUTHENTICATION =====
@@ -111,8 +112,8 @@ class AdminController {
           role: admin.role,
           email: admin.email
         },
-        process.env.JWT_SECRET,
-        { expiresIn: '24h' }
+        config.jwtSecret,
+        { expiresIn: config.jwtExpiresIn }
       );
 
       // Update last login

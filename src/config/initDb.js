@@ -1,5 +1,6 @@
 import pool from './database.js';
 import bcrypt from 'bcryptjs';
+import config from './env.js';
 
 const initializeDatabase = async () => {
   try {
@@ -82,25 +83,22 @@ const initializeDatabase = async () => {
     `);
     console.log('✓ Admins table ready');
 
-    // Create default superadmin if none exists
+    // Seed the first superadmin from env (ADMIN_USERNAME / ADMIN_EMAIL /
+    // ADMIN_PASSWORD) when none exists. Without ADMIN_PASSWORD nothing is
+    // seeded; create one with POST /api/admin/register instead.
     const adminCheck = await pool.query('SELECT COUNT(*) as count FROM admins');
-    if (parseInt(adminCheck.rows[0].count) === 0) {
-      const defaultUsername = 'superadmin';
-      const defaultPassword = 'Admin@12345';
-      const defaultEmail = 'admin@everzone.com';
-      
-      const passwordHash = await bcrypt.hash(defaultPassword, 10);
-      
-      await pool.query(
-        'INSERT INTO admins (username, password_hash, email, role, is_active) VALUES ($1, $2, $3, $4, $5)',
-        [defaultUsername, passwordHash, defaultEmail, 'superadmin', true]
-      );
-      
-      console.log('\n🔑 Default Superadmin Created:');
-      console.log(`   Username: ${defaultUsername}`);
-      console.log(`   Password: ${defaultPassword}`);
-      console.log(`   Email: ${defaultEmail}`);
-      console.log('   ⚠️  Change password after first login!\n');
+    if (parseInt(adminCheck.rows[0].count, 10) === 0) {
+      const { username, email, password } = config.seedAdmin;
+      if (password) {
+        const passwordHash = await bcrypt.hash(password, 10);
+        await pool.query(
+          'INSERT INTO admins (username, password_hash, email, role, is_active) VALUES ($1, $2, $3, $4, $5)',
+          [username, passwordHash, email, 'superadmin', true]
+        );
+        console.log(`✓ Seeded superadmin "${username}" from ADMIN_* environment variables`);
+      } else {
+        console.log('⚠️  No superadmin exists. Set ADMIN_PASSWORD and restart, or POST /api/admin/register.');
+      }
     } else {
       console.log('✓ Superadmin already exists');
     }
@@ -113,7 +111,7 @@ const initializeDatabase = async () => {
     } else if (error.code === 'ETIMEDOUT') {
       console.error('→ Connection timeout: Check your network or database credentials');
     } else if (error.code === 'ENOTFOUND') {
-      console.error('→ Host not found: Verify DB_HOST in .env file');
+      console.error('→ Host not found: Verify DATABASE_URL / DB_HOST');
     }
     throw error;
   }

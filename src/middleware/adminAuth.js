@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import config from '../config/env.js';
 
 // Admin authentication middleware
 export const adminAuthenticateToken = (req, res, next) => {
@@ -13,7 +14,7 @@ export const adminAuthenticateToken = (req, res, next) => {
       });
     }
 
-    jwt.verify(token, process.env.JWT_SECRET, (err, admin) => {
+    jwt.verify(token, config.jwtSecret, (err, admin) => {
       if (err) {
         if (err.name === 'TokenExpiredError') {
           return res.status(401).json({
