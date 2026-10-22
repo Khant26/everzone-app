@@ -22,59 +22,47 @@ This service is also maintained as the [`api`](https://github.com/Khant26/everzo
 
 ## Installation
 
-1. Clone the repository:
+Requires Node.js 20+ and PostgreSQL.
+
 ```bash
-git clone <repository-url>
-cd everzone-api
+npm ci
+cp .env.example .env      # then edit .env (never commit it)
+createdb everzone_db      # or point DATABASE_URL at any Postgres database
+npm run setup-db          # optional: create tables without starting the server
 ```
 
-2. Install dependencies:
-```bash
-npm install
-```
-
-3. Create `.env` file from `.env.example`:
-```bash
-cp .env.example .env
-```
-
-4. Update `.env` with your PostgreSQL credentials:
-```
-PORT=5000
-NODE_ENV=development
-
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=everzone_db
-DB_USER=postgres
-DB_PASSWORD=your_password
-
-CORS_ORIGIN=http://localhost:5173,http://localhost:3000
-```
-
-5. Create PostgreSQL database:
-```bash
-createdb everzone_db
-```
+Tables are created automatically on startup. If the `admins` table is empty and
+`ADMIN_PASSWORD` is set, a superadmin is seeded from `ADMIN_USERNAME` /
+`ADMIN_EMAIL` / `ADMIN_PASSWORD`; otherwise create the first one with
+`POST /api/admin/register` (only allowed while no admin exists).
 
 ## Running the Server
 
-### Development mode (with auto-reload):
 ```bash
-npm run dev
+npm run dev     # nodemon, auto-reload
+npm start       # production mode
+npm test        # unit + HTTP smoke tests (no database needed)
 ```
 
-### Production mode:
+The server listens on `HOST:PORT` (default `0.0.0.0:5000`). It refuses to start
+without `JWT_SECRET` (and, when `NODE_ENV=production`, without a 32+ character
+secret and a database setting).
+
+### Docker
+
 ```bash
-npm start
+docker build -t everzone-api .
+docker run --rm -p 5000:5000 --env-file .env everzone-api
 ```
 
-Server will start on `http://localhost:5000`
+The image is `node:20-alpine`, installs production dependencies only
+(`npm ci --omit=dev`), runs as the `node` user, listens on `0.0.0.0:$PORT`, and
+has a `HEALTHCHECK` against `/health`.
 
 ## API Endpoints
 
 ### Health Check
-- `GET /health` - Check if server is running
+- `GET /health` (alias `GET /api/health`) - 200 JSON liveness check, no DB access
 
 ### Services
 - `GET /api/services` - Get all services
@@ -215,6 +203,7 @@ CREATE TABLE contact_forms (
 everzone-api/
 ├── src/
 │   ├── config/
+│   │   ├── env.js            # All environment configuration
 │   │   ├── database.js       # Database connection
 │   │   └── initDb.js         # Database initialization
 │   ├── controllers/
@@ -232,7 +221,8 @@ everzone-api/
 │   │   ├── categoryRoutes.js
 │   │   ├── projectRoutes.js
 │   │   └── contactFormRoutes.js
-│   └── server.js             # Main server file
+│   ├── app.js                # Express app (middleware + routes), importable in tests
+│   └── server.js             # Entry point: config check, DB init, listen
 ├── .env.example              # Environment variables template
 ├── .gitignore
 ├── package.json
@@ -241,16 +231,20 @@ everzone-api/
 
 ## Environment Variables
 
+See `.env.example`.
+
 | Variable | Default | Description |
 |----------|---------|-------------|
-| PORT | 5000 | Server port |
-| NODE_ENV | development | Environment mode |
-| DB_HOST | localhost | PostgreSQL host |
-| DB_PORT | 5432 | PostgreSQL port |
-| DB_NAME | everzone_db | Database name |
-| DB_USER | postgres | Database user |
-| DB_PASSWORD | - | Database password |
-| CORS_ORIGIN | * | Allowed CORS origins |
+| `PORT` | `5000` | Server port |
+| `HOST` | `0.0.0.0` | Bind address |
+| `NODE_ENV` | `development` | Environment mode |
+| `DATABASE_URL` | - | Postgres connection URL (preferred) |
+| `DB_HOST` / `DB_PORT` / `DB_NAME` / `DB_USER` / `DB_PASSWORD` | `localhost` / `5432` / `everzone_db` / `postgres` / - | Used when `DATABASE_URL` is empty |
+| `DB_SSL` | `false` | `true` for hosted Postgres that requires TLS |
+| `JWT_SECRET` | - (required) | Secret for signing admin JWTs |
+| `JWT_EXPIRES_IN` | `24h` | Token lifetime |
+| `CORS_ORIGIN` | `http://localhost:5173,http://localhost:3000` | Comma-separated allowed origins |
+| `ADMIN_USERNAME` / `ADMIN_EMAIL` / `ADMIN_PASSWORD` | `superadmin` / `admin@everzone.local` / - | Optional first-run superadmin seed |
 
 ## Response Format
 

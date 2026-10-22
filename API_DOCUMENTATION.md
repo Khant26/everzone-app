@@ -866,7 +866,7 @@ TOKEN=$(curl -s -X POST http://localhost:5000/api/admin/login \
   -H "Content-Type: application/json" \
   -d '{
     "username": "superadmin",
-    "password": "Admin@12345"
+    "password": "<your ADMIN_PASSWORD>"
   }' | jq -r '.data.token')
 
 # === CREATE/UPDATE/DELETE (REQUIRES TOKEN) ===
@@ -1023,7 +1023,7 @@ fetch('http://localhost:5000/api/contact-forms', {
 For complete admin documentation including superadmin authentication, category management, service management, project management, and contact form management, see [ADMIN_DOCUMENTATION.md](./ADMIN_DOCUMENTATION.md).
 
 **Quick Reference:**
-- **Default Credentials:** username: `superadmin`, password: `Admin@12345`
+- **First superadmin:** seeded from `ADMIN_USERNAME` / `ADMIN_PASSWORD` env vars, or via `POST /api/admin/register`
 - **Login Endpoint:** `POST /api/admin/login`
 - **All admin endpoints require JWT token** in Authorization header
 - **Admin can create/edit/delete** all resources

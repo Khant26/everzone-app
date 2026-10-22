@@ -8,16 +8,10 @@ Your EverZone backend now includes a complete **superadmin system** with role-ba
 ## 🔐 Authentication System
 
 ### Default Superadmin Account
-A default superadmin account is **automatically created** on first server startup.
-
-**Default Credentials:**
-```
-Username: superadmin
-Password: Admin@12345
-Email: admin@everzone.com
-```
-
-⚠️ **Important:** Change the password after first login in production!
+No hard-coded default account exists. On first startup, when the `admins` table
+is empty, a superadmin is seeded from the `ADMIN_USERNAME`, `ADMIN_EMAIL` and
+`ADMIN_PASSWORD` environment variables (skipped if `ADMIN_PASSWORD` is empty).
+Alternatively call `POST /api/admin/register` while no admin exists.
 
 ### Login
 Get a JWT token to access protected admin endpoints. Token expires in 24 hours.
@@ -30,7 +24,7 @@ curl -X POST http://localhost:5000/api/admin/login \
   -H "Content-Type: application/json" \
   -d '{
     "username": "superadmin",
-    "password": "Admin@12345"
+    "password": "<your ADMIN_PASSWORD>"
   }'
 ```
 
@@ -404,7 +398,7 @@ curl -X POST http://localhost:5000/api/admin/login \
   -H "Content-Type: application/json" \
   -d '{
     "username": "superadmin",
-    "password": "Admin@12345"
+    "password": "<your ADMIN_PASSWORD>"
   }'
 ```
 
