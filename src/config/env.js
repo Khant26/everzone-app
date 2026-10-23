@@ -34,6 +34,8 @@ const config = {
   },
   // Hosted Postgres (Render, Neon, Supabase...) usually needs SSL.
   dbSsl: toBool(process.env.DB_SSL, false),
+  // Keep the pool small: the API shares a small VM and Postgres with other apps.
+  dbPoolMax: Number.parseInt(process.env.DB_POOL_MAX, 10) || 5,
 
   jwtSecret: process.env.JWT_SECRET || '',
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '24h',
@@ -41,6 +43,15 @@ const config = {
   corsOrigins: parseOrigins(process.env.CORS_ORIGIN).length
     ? parseOrigins(process.env.CORS_ORIGIN)
     : ['http://localhost:5173', 'http://localhost:3000'],
+
+  // Optional storefront chatbot (server-side proxy; the key never reaches the browser).
+  gemini: {
+    apiKey: process.env.GEMINI_API_KEY || '',
+    model: process.env.GEMINI_MODEL || 'gemini-2.5-flash-lite',
+  },
+
+  // SEED_DEMO=1 fills empty content tables with fictional demo data on startup.
+  seedDemo: toBool(process.env.SEED_DEMO, false),
 
   // Optional first-run superadmin seed (only used when the admins table is empty).
   seedAdmin: {
@@ -59,6 +70,12 @@ export const assertRuntimeConfig = () => {
   }
   if (config.isProduction && !config.databaseUrl && !process.env.DB_HOST) {
     problems.push('DATABASE_URL (or DB_HOST/DB_*) is not set');
+  }
+  if (config.isProduction && !process.env.CORS_ORIGIN) {
+    problems.push('CORS_ORIGIN is not set (e.g. https://everzone.khantmaung.com)');
+  }
+  if (config.seedAdmin.password && config.seedAdmin.password.length < 8) {
+    problems.push('ADMIN_PASSWORD must be at least 8 characters');
   }
   if (problems.length) {
     throw new Error(`Invalid configuration:\n  - ${problems.join('\n  - ')}`);

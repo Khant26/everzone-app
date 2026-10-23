@@ -7,6 +7,7 @@ import categoryRoutes from './routes/categoryRoutes.js';
 import projectRoutes from './routes/projectRoutes.js';
 import contactFormRoutes from './routes/contactFormRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
+import chatRoutes from './routes/chatRoutes.js';
 import {
   generalLimiter,
   createLimiter,
@@ -81,6 +82,9 @@ app.use('/api/projects', projectRoutes);
 // Apply stricter rate limiting for contact forms
 app.use('/api/contact-forms', contactFormLimiter);
 app.use('/api/contact-forms', contactFormRoutes);
+
+// Storefront chatbot proxy (rate-limited; needs GEMINI_API_KEY)
+app.use('/api/chat', chatRoutes);
 
 // Admin routes (authentication required for most endpoints)
 app.use('/api/admin', adminRoutes);

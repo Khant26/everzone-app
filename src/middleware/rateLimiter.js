@@ -5,7 +5,7 @@ import mongoSanitize from 'express-mongo-sanitize';
 export const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
-  message: 'Too many requests from this IP, please try again later.',
+  message: { success: false, message: 'Too many requests from this IP, please try again later.' },
   standardHeaders: true,
   legacyHeaders: false,
 });
@@ -14,7 +14,7 @@ export const generalLimiter = rateLimit({
 export const strictLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 5,
-  message: 'Too many login attempts, please try again later.',
+  message: { success: false, message: 'Too many login attempts, please try again later.' },
   skipSuccessfulRequests: true,
 });
 
@@ -22,7 +22,7 @@ export const strictLimiter = rateLimit({
 export const createLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 20,
-  message: 'Too many items created, please try again later.',
+  message: { success: false, message: 'Too many items created, please try again later.' },
   skipSuccessfulRequests: false,
 });
 
@@ -30,7 +30,7 @@ export const createLimiter = rateLimit({
 export const contactFormLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   max: 10,
-  message: 'Too many contact form submissions, please try again later.',
+  message: { success: false, message: 'Too many contact form submissions, please try again later.' },
   skipSuccessfulRequests: true,
 });
 

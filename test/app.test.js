@@ -5,6 +5,7 @@ import assert from 'node:assert/strict';
 
 process.env.JWT_SECRET ||= 'test-secret-for-node-test-only-0123456789';
 process.env.CORS_ORIGIN ||= 'http://localhost:5173';
+delete process.env.GEMINI_API_KEY;
 
 const { default: app } = await import('../src/app.js');
 const { default: pool } = await import('../src/config/database.js');
@@ -74,4 +75,34 @@ test('expected API routers are registered', () => {
       `router for /api/${prefix} is not mounted`
     );
   }
+});
+
+test('customer inquiries are not readable without admin auth', async () => {
+  const res = await fetch(`${baseUrl}/api/contact-forms`);
+  assert.equal(res.status, 404);
+  const del = await fetch(`${baseUrl}/api/contact-forms/1`, { method: 'DELETE' });
+  assert.equal(del.status, 404);
+});
+
+test('admin login validates its body before touching the database', async () => {
+  const res = await fetch(`${baseUrl}/api/admin/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username: 'someone' }),
+  });
+  assert.equal(res.status, 400);
+});
+
+test('chat proxy rejects empty messages and reports when it is not configured', async () => {
+  const post = (body) =>
+    fetch(`${baseUrl}/api/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+  assert.equal((await post({ message: '  ' })).status, 400);
+  assert.equal((await post({ message: 'x'.repeat(1001) })).status, 400);
+  const res = await post({ message: 'Hello' });
+  assert.equal(res.status, 503);
+  assert.equal((await res.json()).success, false);
 });

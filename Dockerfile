@@ -1,9 +1,12 @@
-# EverZone API
-FROM node:20-alpine
+# EverZone API: one Node process, configured only through environment variables.
+# node:22 is the current LTS line (node:20 reached end of life in April 2026).
+FROM node:22-alpine
 
+# NODE_OPTIONS caps the V8 heap so the container stays small on a shared VM.
 ENV NODE_ENV=production \
     HOST=0.0.0.0 \
-    PORT=5000
+    PORT=5000 \
+    NODE_OPTIONS=--max-old-space-size=192
 
 WORKDIR /app
 

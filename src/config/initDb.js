@@ -1,6 +1,7 @@
 import pool from './database.js';
 import bcrypt from 'bcryptjs';
 import config from './env.js';
+import seedDemoData from './seedDemo.js';
 
 const initializeDatabase = async () => {
   try {
@@ -101,6 +102,17 @@ const initializeDatabase = async () => {
       }
     } else {
       console.log('✓ Superadmin already exists');
+    }
+
+    if (config.seedDemo) {
+      const n = await seedDemoData();
+      if (n.categories || n.services || n.projects || n.contactForms) {
+        console.log(
+          `✓ Demo data seeded: ${n.categories} categories, ${n.services} services, ${n.projects} projects, ${n.contactForms} inquiries`
+        );
+      } else {
+        console.log('✓ Demo data skipped: tables already contain data');
+      }
     }
 
     console.log('✓ All database tables initialized successfully');

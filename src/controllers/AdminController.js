@@ -62,19 +62,21 @@ class AdminController {
   // Login
   static async login(req, res) {
     try {
-      const { username, password } = req.body;
+      // The dashboard sends one "username" field that may hold a username or an email.
+      const username = req.body.username ?? req.body.email;
+      const { password } = req.body;
 
       // Validate input
-      if (!username || !password) {
+      if (typeof username !== 'string' || typeof password !== 'string' || !username || !password) {
         return res.status(400).json({
           success: false,
           message: 'Username and password are required'
         });
       }
 
-      // Find admin
+      // Find admin by username or (case-insensitive) email
       const result = await pool.query(
-        'SELECT * FROM admins WHERE username = $1',
+        'SELECT * FROM admins WHERE username = $1 OR LOWER(email) = LOWER($1) ORDER BY (username = $1) DESC LIMIT 1',
         [username]
       );
 

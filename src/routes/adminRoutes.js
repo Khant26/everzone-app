@@ -2,16 +2,18 @@ import express from 'express';
 import AdminController from '../controllers/AdminController.js';
 import { adminAuthenticateToken, adminAuthorize } from '../middleware/adminAuth.js';
 import upload from '../middleware/fileUpload.js';
+import { strictLimiter } from '../middleware/rateLimiter.js';
 
 const router = express.Router();
 
 // ===== PUBLIC ROUTES =====
 
 // Register superadmin (only works if no admin exists)
-router.post('/register', AdminController.register);
+router.post('/register', strictLimiter, AdminController.register);
 
 // Login
-router.post('/login', AdminController.login);
+// Login (5 failed attempts per IP per 15 minutes)
+router.post('/login', strictLimiter, AdminController.login);
 
 // ===== PROTECTED ROUTES (Require Authentication & Superadmin Role) =====
 

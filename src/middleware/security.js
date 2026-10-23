@@ -1,5 +1,8 @@
 // Request logging middleware
 export const requestLogger = (req, res, next) => {
+  // Skip container health probes so they do not flood the logs.
+  if (req.path === '/health') return next();
+
   const timestamp = new Date().toISOString();
   const method = req.method;
   const path = req.path;

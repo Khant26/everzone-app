@@ -83,4 +83,23 @@ test('checkMaliciousPatterns rejects injection keywords and permits normal text'
     },
   );
   assert.equal(allowed, true);
+
+  for (const message of [
+    'Can you select materials from local suppliers?',
+    'We want to insert into the wall a new window and update the kitchen set.',
+  ]) {
+    allowed = false;
+    checkMaliciousPatterns({ body: { message }, ip: '127.0.0.1' }, res, () => {
+      allowed = true;
+    });
+    assert.equal(allowed, true, `normal text was rejected: ${message}`);
+  }
+
+  statusCode = undefined;
+  checkMaliciousPatterns(
+    { body: { name: "x' OR '1'='1" }, ip: '127.0.0.1' },
+    res,
+    () => assert.fail('injection input must not call next'),
+  );
+  assert.equal(statusCode, 400);
 });

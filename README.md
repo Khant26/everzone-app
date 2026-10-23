@@ -2,6 +2,9 @@
 
 Express.js backend for EverZone Admin Dashboard and Frontend.
 
+**Live demo:** API https://api-everzone.khantmaung.com (health:
+`GET /health`), used by https://everzone.khantmaung.com (admin at `/admin`).
+
 ## Product repository
 
 This service is also maintained as the [`api`](https://github.com/Khant26/everzone/tree/api) branch of the combined [EverZone repository](https://github.com/Khant26/everzone). The original repository is preserved.
@@ -22,7 +25,7 @@ This service is also maintained as the [`api`](https://github.com/Khant26/everzo
 
 ## Installation
 
-Requires Node.js 20+ and PostgreSQL.
+Requires Node.js 20+ (22 LTS recommended) and PostgreSQL.
 
 ```bash
 npm ci
@@ -31,10 +34,23 @@ createdb everzone_db      # or point DATABASE_URL at any Postgres database
 npm run setup-db          # optional: create tables without starting the server
 ```
 
-Tables are created automatically on startup. If the `admins` table is empty and
+Tables are created automatically on startup (`CREATE TABLE IF NOT EXISTS`), so
+an empty database works. If the `admins` table is empty and
 `ADMIN_PASSWORD` is set, a superadmin is seeded from `ADMIN_USERNAME` /
 `ADMIN_EMAIL` / `ADMIN_PASSWORD`; otherwise create the first one with
-`POST /api/admin/register` (only allowed while no admin exists).
+`POST /api/admin/register` (only allowed while no admin exists). Admins can sign
+in with either their username or their email.
+
+### Demo data (`SEED_DEMO=1`)
+
+With `SEED_DEMO=1` the server fills an empty database with fictional content on
+startup: the three project categories the storefront shows (Residential,
+Commercial, Industrial), 6 services, 11 projects and 3 sample inquiries, with
+images hot-linked from `images.unsplash.com`. Content is inserted only when the
+`categories`, `services` and `projects` tables are all empty, inquiries only when
+`contact_forms` is empty, inside one transaction guarded by an advisory lock, so
+restarts never duplicate rows or overwrite edits made in `/admin`. The demo
+admin comes from `ADMIN_EMAIL` / `ADMIN_PASSWORD` (never hard-coded).
 
 ## Running the Server
 
@@ -55,9 +71,17 @@ docker build -t everzone-api .
 docker run --rm -p 5000:5000 --env-file .env everzone-api
 ```
 
-The image is `node:20-alpine`, installs production dependencies only
+Example for production behind a reverse proxy on a shared Docker network:
+
+```bash
+docker run -d --name everzone-api --restart unless-stopped --network <net> \n  -e NODE_ENV=production -e PORT=5000 \n  -e DATABASE_URL=postgres://everzone:<password>@db:5432/everzone \n  -e JWT_SECRET=<random 48+ chars> -e CORS_ORIGIN=https://everzone.khantmaung.com \n  -e SEED_DEMO=1 -e ADMIN_EMAIL=<email> -e ADMIN_PASSWORD=<password> \n  everzone-api
+```
+
+The image is `node:22-alpine`, installs production dependencies only
 (`npm ci --omit=dev`), runs as the `node` user, listens on `0.0.0.0:$PORT`, and
-has a `HEALTHCHECK` against `/health`.
+has a `HEALTHCHECK` against `/health`, caps the V8 heap at 192 MB
+(`NODE_OPTIONS`) and uses about 20-70 MB of RAM idle. It stops cleanly on
+SIGTERM.
 
 ## API Endpoints
 
@@ -67,9 +91,7 @@ has a `HEALTHCHECK` against `/health`.
 ### Services
 - `GET /api/services` - Get all services
 - `GET /api/services/:id` - Get service by ID
-- `POST /api/services` - Create new service
-- `PUT /api/services/:id` - Update service
-- `DELETE /api/services/:id` - Delete service
+- `POST|PUT|DELETE /api/admin/services[/:id]` - Admin only (JWT); multipart with optional `image` file
 
 **Body:**
 ```json
@@ -83,9 +105,7 @@ has a `HEALTHCHECK` against `/health`.
 ### Categories
 - `GET /api/categories` - Get all categories
 - `GET /api/categories/:id` - Get category by ID
-- `POST /api/categories` - Create new category
-- `PUT /api/categories/:id` - Update category
-- `DELETE /api/categories/:id` - Delete category
+- `POST|PUT|DELETE /api/admin/categories[/:id]` - Admin only (JWT)
 
 **Body:**
 ```json
@@ -99,9 +119,7 @@ has a `HEALTHCHECK` against `/health`.
 - `GET /api/projects` - Get all projects
 - `GET /api/projects/:id` - Get project by ID
 - `GET /api/projects/category/:categoryId` - Get projects by category
-- `POST /api/projects` - Create new project
-- `PUT /api/projects/:id` - Update project
-- `DELETE /api/projects/:id` - Delete project
+- `POST|PUT|DELETE /api/admin/projects[/:id]` - Admin only (JWT); multipart with optional `image` file
 
 **Body:**
 ```json
@@ -118,11 +136,16 @@ has a `HEALTHCHECK` against `/health`.
 ```
 
 ### Contact Forms
-- `GET /api/contact-forms` - Get all contact forms
-- `GET /api/contact-forms/:id` - Get contact form by ID
-- `POST /api/contact-forms` - Submit contact form
-- `PUT /api/contact-forms/:id/status` - Update form status
-- `DELETE /api/contact-forms/:id` - Delete contact form
+- `POST /api/contact-forms` - Submit contact form (public, rate-limited)
+- `GET /api/admin/contact-forms` - List inquiries (admin only)
+- `PUT /api/admin/contact-forms/:id/status` - Update status (admin only)
+- `DELETE /api/admin/contact-forms/:id` - Delete inquiry (admin only)
+
+### Admin auth
+- `POST /api/admin/login` - `{ "username": "<username or email>", "password": "..." }` returns a JWT (5 failed attempts per 15 min per IP)
+
+### Chatbot
+- `POST /api/chat` - `{ "message": "..." }` returns `{ data: { reply } }`; proxies Gemini with the server-side `GEMINI_API_KEY` (503 when unset, 20 requests per 15 min per IP)
 
 **Body (Submit):**
 ```json
@@ -137,7 +160,7 @@ has a `HEALTHCHECK` against `/health`.
 **Body (Update Status):**
 ```json
 {
-  "status": "pending | read | responded"
+  "status": "pending | reviewed | responded | archived"
 }
 ```
 
@@ -205,7 +228,8 @@ everzone-api/
 │   ├── config/
 │   │   ├── env.js            # All environment configuration
 │   │   ├── database.js       # Database connection
-│   │   └── initDb.js         # Database initialization
+│   │   ├── initDb.js         # Creates tables, seeds first admin
+│   │   └── seedDemo.js       # Optional demo content (SEED_DEMO=1)
 │   ├── controllers/
 │   │   ├── ServiceController.js
 │   │   ├── CategoryController.js
@@ -220,7 +244,8 @@ everzone-api/
 │   │   ├── serviceRoutes.js
 │   │   ├── categoryRoutes.js
 │   │   ├── projectRoutes.js
-│   │   └── contactFormRoutes.js
+│   │   ├── contactFormRoutes.js
+│   │   └── chatRoutes.js     # Chatbot proxy (GEMINI_API_KEY)
 │   ├── app.js                # Express app (middleware + routes), importable in tests
 │   └── server.js             # Entry point: config check, DB init, listen
 ├── .env.example              # Environment variables template
@@ -240,11 +265,14 @@ See `.env.example`.
 | `NODE_ENV` | `development` | Environment mode |
 | `DATABASE_URL` | - | Postgres connection URL (preferred) |
 | `DB_HOST` / `DB_PORT` / `DB_NAME` / `DB_USER` / `DB_PASSWORD` | `localhost` / `5432` / `everzone_db` / `postgres` / - | Used when `DATABASE_URL` is empty |
-| `DB_SSL` | `false` | `true` for hosted Postgres that requires TLS |
+| `DB_SSL` | `false` | `true` for hosted Postgres that requires TLS (leave `false` for a Postgres container on the same Docker network) |
+| `DB_POOL_MAX` | `5` | Max pooled DB connections |
 | `JWT_SECRET` | - (required) | Secret for signing admin JWTs |
 | `JWT_EXPIRES_IN` | `24h` | Token lifetime |
-| `CORS_ORIGIN` | `http://localhost:5173,http://localhost:3000` | Comma-separated allowed origins |
-| `ADMIN_USERNAME` / `ADMIN_EMAIL` / `ADMIN_PASSWORD` | `superadmin` / `admin@everzone.local` / - | Optional first-run superadmin seed |
+| `CORS_ORIGIN` | `http://localhost:5173,http://localhost:3000` | Comma-separated allowed origins; required in production (`https://everzone.khantmaung.com`) |
+| `ADMIN_USERNAME` / `ADMIN_EMAIL` / `ADMIN_PASSWORD` | `superadmin` / `admin@everzone.local` / - | Optional first-run superadmin (demo admin); password min 8 chars |
+| `SEED_DEMO` | `0` | `1` seeds fictional demo content into empty tables on startup |
+| `GEMINI_API_KEY` / `GEMINI_MODEL` | - / `gemini-2.5-flash-lite` | Optional chatbot proxy |
 
 ## Response Format
 

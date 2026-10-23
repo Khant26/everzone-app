@@ -11,7 +11,7 @@ http://localhost:5000
 
 | Operation | Route | Authentication | Example |
 |-----------|-------|-----------------|---------|
-| **GET** (Read) | `/api/services`, `/api/categories`, `/api/projects`, `/api/contact-forms` | ✅ **Public** - No token needed | `GET /api/services` |
+| **GET** (Read) | `/api/services`, `/api/categories`, `/api/projects`` | ✅ **Public** - No token needed | `GET /api/services` |
 | **POST** (Create) | `/api/admin/services`, `/api/admin/categories`, `/api/admin/projects` | ⚡ **Admin Only** - Token required | `POST /api/admin/services` |
 | **PUT** (Update) | `/api/admin/services/:id`, `/api/admin/categories/:id`, `/api/admin/projects/:id` | ⚡ **Admin Only** - Token required | `PUT /api/admin/services/1` |
 | **DELETE** (Delete) | `/api/admin/services/:id`, `/api/admin/categories/:id`, `/api/admin/projects/:id` | ⚡ **Admin Only** - Token required | `DELETE /api/admin/services/1` |
@@ -649,6 +649,11 @@ Authorization: Bearer <JWT_TOKEN>
 ---
 
 ## Contact Forms
+
+> **Note:** only `POST /api/contact-forms` is public. Listing, status updates and
+> deletes contain customer data and are served only under
+> `/api/admin/contact-forms` with an admin JWT (`Authorization: Bearer <token>`);
+> the public `GET`/`PUT`/`DELETE /api/contact-forms` paths documented below now return 404.
 
 ### Get All Contact Forms
 **Endpoint:** `GET /api/contact-forms`

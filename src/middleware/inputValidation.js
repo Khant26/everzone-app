@@ -37,9 +37,14 @@ export const validateInput = (req, res, next) => {
 
 export const checkMaliciousPatterns = (req, res, next) => {
   const body = JSON.stringify(req.body);
+  // Every query is parameterised, so this is only a coarse tripwire. Keep the
+  // patterns specific: plain English such as "select materials from local
+  // suppliers" or "insert into the wall" must not be rejected.
   const maliciousPatterns = [
-    /(\$where|\$ne|\$gt|\$regex)/gi,
-    /\b(union\s+select|select\s+.+\s+from|insert\s+into|update\s+\w+\s+set|delete\s+from|drop\s+(table|database))\b/gi,
+    /(\$where|\$ne|\$gt|\$regex)/i,
+    /\b(union\s+(all\s+)?select|drop\s+(table|database))\b/i,
+    /;\s*(select|insert|update|delete|drop|truncate|alter)\b/i,
+    /'\s*or\s+'?\d+'?\s*=\s*'?\d+/i,
   ];
 
   for (const pattern of maliciousPatterns) {
