@@ -258,7 +258,7 @@ function ContactUs() {
                 {/* Google Map */}
                 <div className="w-full h-[400px] md:h-[450px] rounded-[2rem] overflow-hidden bg-slate-200 shadow-sm border border-slate-100">
                   <iframe
-                    src="https://maps.google.com/maps?q=Anawyahta%20Housing,%20Kamayut,%20Yangon&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                    src="https://maps.google.com/maps?q=Yangon,%20Myanmar&t=&z=15&ie=UTF8&iwloc=&output=embed"
                     width="100%"
                     height="100%"
                     style={{ border: 0 }}
