@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import apiClient from "../services/api";
 
 function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
@@ -30,42 +31,21 @@ function Chatbot() {
     setIsLoading(true);
 
     try {
-      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-      const model =
-        import.meta.env.VITE_GEMINI_MODEL || "gemini-2.5-flash-lite";
-
-      if (!apiKey) throw new Error("Gemini API key is not configured");
-
-      const systemPrompt = `You are a helpful AI assistant for EverZone...`; // Keep your existing prompt
-
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [
-              { parts: [{ text: systemPrompt + "\n\nUser: " + userMessage }] },
-            ],
-          }),
-        }
-      );
-
-      if (!response.ok)
-        throw new Error("Failed to get response from Gemini API");
-
-      const data = await response.json();
+      // The backend proxies the AI model, so no API key is shipped to the browser.
+      const response = await apiClient.post("/chat", { message: userMessage });
       const botMessage =
-        data?.candidates?.[0]?.content?.parts?.[0]?.text ||
-        "Sorry, I couldn't generate a response.";
+        response.data?.data?.reply || "Sorry, I couldn't generate a response.";
 
       setMessages((prev) => [...prev, { type: "bot", text: botMessage }]);
     } catch (error) {
-      console.error("Chatbot error:", error);
-      setMessages((prev) => [
-        ...prev,
-        { type: "bot", text: `Error: ${error.message}` },
-      ]);
+      const status = error.response?.status;
+      const text =
+        status === 503
+          ? "The chat assistant is offline right now. Please use the contact form and our team will get back to you."
+          : status === 429
+            ? "You've sent a lot of messages. Please wait a few minutes and try again."
+            : "Sorry, I couldn't reach the assistant. Please try again later or use the contact form.";
+      setMessages((prev) => [...prev, { type: "bot", text }]);
     } finally {
       setIsLoading(false);
     }

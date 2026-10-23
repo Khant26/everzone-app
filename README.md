@@ -3,7 +3,9 @@
 One React + Vite app that serves both the EverZone customer storefront and the
 administrator dashboard.
 
-**Live (storefront):** https://ever-zone-front-end.vercel.app/
+**Live demo:** https://everzone.khantmaung.com (admin at `/admin`) — API at
+https://api-everzone.khantmaung.com (health: `/health`). The demo shows
+fictional sample projects, services and inquiries seeded by the backend.
 
 ## Branches
 
@@ -48,11 +50,13 @@ are compiled into the browser bundle, so they are **public**.
 
 | Variable | Required | Description |
 |---|---|---|
-| `VITE_API_BASE_URL` | yes | API base, e.g. `http://localhost:5000/api`. The trailing `/api` is optional. If unset, the app calls same-origin `/api`. |
-| `VITE_GEMINI_API_KEY` | no | Google Gemini key for the storefront chatbot. It is visible to anyone using the site, so restrict it by HTTP referrer in Google Cloud Console. |
-| `VITE_GEMINI_MODEL` | no | Gemini model (default `gemini-2.5-flash-lite`). |
+| `VITE_API_BASE_URL` | yes (production) | API base. Production: `https://api-everzone.khantmaung.com`. The trailing `/api` is optional. If unset, `npm run dev` uses `http://localhost:5000`; a production build falls back to same-origin `/api` (never localhost). |
 
-The API must allow the site's origin in its `CORS_ORIGIN` setting.
+No secrets belong in `VITE_*` variables. The chatbot calls the backend's
+`POST /api/chat`, which holds the AI key server-side (`GEMINI_API_KEY`).
+
+The API must allow the site's origin in its `CORS_ORIGIN` setting
+(`https://everzone.khantmaung.com` in production).
 
 ## Run and build
 
@@ -70,8 +74,9 @@ npm run preview   # serve the built app locally
 
 `vercel.json` builds with `npm run build`, serves `dist/`, and rewrites every
 non-file path to `index.html` so deep links such as `/admin/projects` work. Set
-`VITE_API_BASE_URL` (and the optional Gemini variables) in the Vercel project's
-environment settings.
+`VITE_API_BASE_URL=https://api-everzone.khantmaung.com` in the Vercel project's
+environment settings (it is read at build time, so redeploy after changing it)
+and add the custom domain `everzone.khantmaung.com`.
 
 ## License
 
